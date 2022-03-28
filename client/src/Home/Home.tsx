@@ -44,8 +44,9 @@ function Home({ text }: Props) {
           Accept: "application/json",
           "Content-Type": "application/json",
           Cache: "no-cache",
+          withCredentials: true,
         },
-        withCredentials: true,
+
         method: "get",
         url: "https://test.v-ting.net/session",
       });
