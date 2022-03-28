@@ -23,6 +23,7 @@ function Home({ text }: Props) {
         },
         { withCredentials: true }
       );
+
       if (response.status === 200) {
         dispatch(setIsLogin(true));
         console.log("로그인에 성공하셨습니다.");
@@ -40,13 +41,9 @@ function Home({ text }: Props) {
   const logOut = async () => {
     try {
       const response = await axios.get("https://test.v-ting.net/session", {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Cache: "no-cache",
-        },
         withCredentials: true,
       });
+
       if (response.status === 200) {
         dispatch(setIsLogin(false));
         console.log("로그아웃에 성공하셨습니다.");
