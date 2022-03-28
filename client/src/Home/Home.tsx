@@ -58,11 +58,29 @@ function Home({ text }: Props) {
     }
   };
 
+  const test = async () => {
+    try {
+      const response = await axios({
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Cache: "no-cache",
+        },
+        withCredentials: true,
+        method: "get",
+        url: "http://test.v-ting.net/",
+      }).then((data) => console.log(data));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <div>
       {text}
       <button onClick={() => getAccessToken()}>login</button>
       <button onClick={() => logOut()}>logout</button>
+      <button onClick={() => test()}>test</button>
     </div>
   );
 }
