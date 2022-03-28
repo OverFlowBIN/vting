@@ -20,8 +20,8 @@ function Home({ text }: Props) {
         {
           user_id: "test@yof.com",
           password: "1234",
-        }
-        // { withCredentials: true }
+        },
+        { withCredentials: true }
       );
       if (response.status === 200) {
         dispatch(setIsLogin(true));
@@ -39,15 +39,13 @@ function Home({ text }: Props) {
 
   const logOut = async () => {
     try {
-      const response = await axios({
+      const response = await axios.get("https://test.v-ting.net/session", {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           Cache: "no-cache",
         },
         withCredentials: true,
-        method: "get",
-        url: "https://test.v-ting.net/session",
       });
       if (response.status === 200) {
         dispatch(setIsLogin(false));
