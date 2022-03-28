@@ -16,7 +16,7 @@ function Home({ text }: Props) {
   const getAccessToken = async () => {
     try {
       const response = await axios.post(
-        "http://test.v-ting.net/session",
+        "https://test.v-ting.net/session",
         {
           user_id: "test@yof.com",
           password: "1234",
@@ -47,7 +47,7 @@ function Home({ text }: Props) {
         },
         withCredentials: true,
         method: "get",
-        url: "http://test.v-ting.net/session",
+        url: "https://test.v-ting.net/session",
       });
       if (response.status === 200) {
         dispatch(setIsLogin(false));
@@ -62,14 +62,14 @@ function Home({ text }: Props) {
     try {
       const response = await axios({
         headers: {
-          "Access-Control-Allow-Origin": "http://test.v-ting.net/",
+          "Access-Control-Allow-Origin": "https://test.v-ting.net/",
           Accept: "application/json",
           "Content-Type": "application/json",
           Cache: "no-cache",
         },
         withCredentials: true,
         method: "get",
-        url: "http://test.v-ting.net/",
+        url: "https://test.v-ting.net/",
       }).then((data) => console.log(data));
     } catch (e) {
       console.log(e);
