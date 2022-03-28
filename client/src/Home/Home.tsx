@@ -62,6 +62,7 @@ function Home({ text }: Props) {
     try {
       const response = await axios({
         headers: {
+          "Access-Control-Allow-Origin": "http://test.v-ting.net/",
           Accept: "application/json",
           "Content-Type": "application/json",
           Cache: "no-cache",
