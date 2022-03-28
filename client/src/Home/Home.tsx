@@ -40,10 +40,10 @@ function Home({ text }: Props) {
 
   const logOut = async () => {
     try {
-      const response = await axios.({
+      const response = await axios({
         method: "get", // 통신 방식
         url: "https://test.v-ting.net/session", // 서버
-        headers: { withCredentials: true } // 요청 헤더 설정
+        headers: { withCredentials: true }, // 요청 헤더 설정
       });
 
       if (response.status === 200) {
