@@ -16,7 +16,7 @@ function Home({ text }: Props) {
   const getAccessToken = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/session",
+        "http://test.v-ting.net/session",
         {
           user_id: "test@yof.com",
           password: "1234",
@@ -32,31 +32,31 @@ function Home({ text }: Props) {
     }
   };
 
-  const logOut = () => {
-    dispatch(setIsLogin(false));
-    console.log("로그아웃 되었습니다", isLogin);
-  };
-
-  // const logOut = async () => {
-  //   try {
-  //     const response = await axios({
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //         Cache: "no-cache",
-  //       },
-  //       withCredentials: true,
-  //       method: "get",
-  //       url: "http://localhost:8000/session",
-  //     });
-  //     if (response.status === 200) {
-  //       dispatch(setIsLogin(false));
-  //       console.log("로그아웃에 성공하셨습니다.");
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
+  // const logOut = () => {
+  //   dispatch(setIsLogin(false));
+  //   console.log("로그아웃 되었습니다", isLogin);
   // };
+
+  const logOut = async () => {
+    try {
+      const response = await axios({
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Cache: "no-cache",
+        },
+        withCredentials: true,
+        method: "get",
+        url: "http://test.v-ting.net/session",
+      });
+      if (response.status === 200) {
+        dispatch(setIsLogin(false));
+        console.log("로그아웃에 성공하셨습니다.");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <div>
