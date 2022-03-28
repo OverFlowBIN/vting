@@ -24,6 +24,7 @@ interface InOrUp {
   signIn: boolean;
 }
 
+  // url 바껴라!
 const serverURL: string = "https://test.v-ting.net";
 
 function SignIn() {
