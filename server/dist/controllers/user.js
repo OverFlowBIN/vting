@@ -15,6 +15,7 @@ const jwt = require("jsonwebtoken");
 exports.controller = {
     post: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { email } = req.body;
+        require("dotenv").config();
         export let UserController = {
             //회원가입과 탈퇴시 모두 사용가능한 체크
             userCheck: {
