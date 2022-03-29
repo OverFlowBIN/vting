@@ -43,7 +43,10 @@ function Home({ text }: Props) {
       const response = await axios({
         method: "get", // 통신 방식
         url: "https://test.v-ting.net/session", // 서버
-        headers: { withCredentials: true }, // 요청 헤더 설정
+        headers: { 
+          'Content-Type' : 'application/json',
+          'withCredentials' : true,
+        }, // 요청 헤더 설정
       });
 
       if (response.status === 200) {
