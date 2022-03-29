@@ -44,8 +44,8 @@ function Home({ text }: Props) {
         method: "get", // 통신 방식
         url: "https://test.v-ting.net/session", // 서버
         headers: { 
-          'Content-Type' : 'application/json',
-          'withCredentials' : true,
+          Content-Type : 'application/json',
+          withCredentials : true,
         }, // 요청 헤더 설정
       });
 
