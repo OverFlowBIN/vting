@@ -17,6 +17,7 @@ dotenv.config();
 const PORT = process.env.PORT;
 const app: express.Application = express();
 
+
 const allowedOrigins = ["http://localhost:3000", "v-ting.net"];
 
 const options: cors.CorsOptions = {
