@@ -164,7 +164,7 @@ function VotingBanner() {
           ></input>
         </div>
         <a
-          href={`http://vote.localhost:3000/${vtingCode}`}
+          href={`https://vote.v-ting.net/${vtingCode}`}
           target="_blank"
           rel="noopener noreferrer"
         >
