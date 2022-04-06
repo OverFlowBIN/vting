@@ -15,6 +15,7 @@ function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [homeMode, setHomeMode] = useState(false);
+
   let location = useLocation();
   const userInfo = useSelector((state: RootState) => state.userInfo);
   let isLoginState = useSelector((state: RootState) => state.isLogin);
