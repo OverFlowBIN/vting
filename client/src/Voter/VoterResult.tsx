@@ -73,7 +73,7 @@ function VoterResult() {
     if (code) setResult(true);
   }, [code]);
 
-  const serverURL = "http://localhost:8000";
+  const serverURL = "https://test.v-ting.net";
 
   // 접속 시 해당 설문 정보 가져오기
   useEffect(() => {

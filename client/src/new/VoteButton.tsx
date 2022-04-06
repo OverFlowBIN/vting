@@ -21,7 +21,7 @@ function VoteButton({ everytingIsOk, setTitleShake, setItemShake }: Props) {
   const alert = useAlert();
   const dispatch = useDispatch();
 
-  const serverURL = "http://localhost:8000";
+  const serverURL = "https://test.v-ting.net";
 
   const sendNewVote = async () => {
     if (!everytingIsOk) {

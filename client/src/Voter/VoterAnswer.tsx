@@ -15,7 +15,7 @@ interface Options {
   setAnswerMode: Dispatch<SetStateAction<boolean>>;
 }
 
-const serverURL = "http://localhost:8000";
+const serverURL = "https://test.v-ting.net";
 
 function VoterAnswer({ setAnswerMode }: Props) {
   const voteData = useSelector((state: RootState) => state.getVote);

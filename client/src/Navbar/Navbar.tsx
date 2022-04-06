@@ -9,7 +9,7 @@ import { RootState, setIsLogin, setUserInfo } from "../store/index";
 import axios from "axios";
 import ProgressBar from "../Info/ProgressBar";
 
-const serverURL: string = "http://localhost:8000";
+const serverURL: string = "https://test.v-ting.net";
 
 function Navbar() {
   const dispatch = useDispatch();

@@ -23,7 +23,7 @@ export default function VoteSlider() {
     },
   ]);
 
-  const serverURL: string = "http://localhost:8000";
+  const serverURL: string = "https://test.v-ting.net";
   useEffect(() => {
     async function getAllVotes() {
       const response = await axios.get(`${serverURL}/allvotes`);

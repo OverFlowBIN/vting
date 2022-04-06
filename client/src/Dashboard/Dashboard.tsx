@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/index";
 import "./Dashboard.scss";
 
-const serverURL: string = "http://localhost:8000";
+const serverURL: string = "https://test.v-ting.net";
 
 function Dashboard() {
   const navigate = useNavigate();

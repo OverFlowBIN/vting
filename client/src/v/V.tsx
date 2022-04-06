@@ -79,7 +79,7 @@ function V() {
   const [overtime, setOvertime] = useState(0);
   const [somethingWrong, setSometingWrong] = useState(false);
 
-  const serverURL = "http://localhost:8000";
+  const serverURL = "https://test.v-ting.net";
   const accessToken = localStorage.getItem("accessToken");
 
   useEffect(() => {

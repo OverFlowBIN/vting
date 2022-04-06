@@ -49,7 +49,7 @@ function Vresult() {
   const format = voteData.format;
   const type = voteData.type;
   const dispatch = useDispatch();
-  const serverURL = "http://localhost:8000";
+  const serverURL = "https://test.v-ting.net";
   const [words, setWords] = useState([{ text: "", value: 10 }]);
 
   // 워드클라우드 세팅
