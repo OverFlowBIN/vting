@@ -49,7 +49,7 @@ export default function VoteSlider() {
         <Slider {...settings}>
           {allVotes.map((el, idx) => (
             <a
-              href={`http://vote.localhost:3000/${el.url}`}
+              href={`https://vote.v-ting.net/${el.url}`}
               key={idx}
               target="_blank"
               rel="noopener noreferrer"
