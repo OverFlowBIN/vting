@@ -8,6 +8,7 @@ import Info from "../Info/Info";
 
 axios.defaults.withCredentials = true;
 
+
 function Home() {
   return (
     <div className="homeCon">
@@ -17,6 +18,7 @@ function Home() {
         추후 서비스 소개가 들어갈 영역입니다.
         <Info />
       </div>
+
     </div>
   );
 }
