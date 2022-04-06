@@ -8,7 +8,8 @@ import "./SignIn.scss";
 import Logo from "../assets/v-ting_logo_circle.png";
 import { SiGithub } from "react-icons/si";
 import Google from "../assets/google-oauth-logo.png";
-import { LoginGoogle, LoginFacebook } from "./OauthLogin";
+// import { LoginGoogle, LoginFacebook } from "./OauthLogin";
+import { LoginGoogle } from "./OauthLogin";
 
 interface User {
   email: string;
@@ -362,9 +363,9 @@ function SignIn() {
                   <div>
                     <LoginGoogle inOrUp="in" />
                   </div>
-                  <div>
+                  {/* <div>
                     <LoginFacebook inOrUp="in" />
-                  </div>
+                  </div> */}
                 </div>
                 <button className="signUpBtn" onClick={() => setSignUp()}>
                   아직 계정이 없으신가요?
@@ -482,9 +483,9 @@ function SignIn() {
                 <div>
                   <LoginGoogle inOrUp="out" />
                 </div>
-                <div>
+                {/* <div>
                   <LoginFacebook inOrUp="out" />
-                </div>
+                </div> */}
               </div>
               <button className="back_login" onClick={() => setSignIn()}>
                 로그인화면으로 돌아가기
