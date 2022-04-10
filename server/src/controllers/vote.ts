@@ -104,6 +104,9 @@ export let VoteController = {
                     manytimes,
                     undergoing: true,
                     isPublic: true,
+                    sumCount: 0,
+                    voterCount: 0,
+                    variance: 0,
                     created_at: new Date(),
                   },
                   async (err: Error, data: any) => {
@@ -149,6 +152,7 @@ export let VoteController = {
                     response,
                     undergoing: true,
                     isPublic: true,
+                    voterCount: 0,
                     created_at: new Date(),
                   },
                   async (err: Error, data: any) => {
@@ -192,6 +196,9 @@ export let VoteController = {
                     items,
                     undergoing: true,
                     isPublic: true,
+                    sumCount: 0,
+                    voterCount: 0,
+                    variance: 0,
                     created_at: new Date(),
                   },
                   async (err: Error, data: any) => {
@@ -233,8 +240,11 @@ export let VoteController = {
                     format,
                     manytimes,
                     items,
-                    undergoing: true,
                     isPublic: true,
+                    undergoing: true,
+                    sumCount: 0,
+                    voterCount: 0,
+                    variance: 0,
                     created_at: new Date(),
                   },
                   async (err: Error, data: any) => {
@@ -291,6 +301,7 @@ export let VoteController = {
                 multiple,
                 manytimes,
                 undergoing: true,
+                sumCount: 0,
                 created_at: new Date(),
               },
               async (err: Error, data: any) => {
@@ -377,6 +388,7 @@ export let VoteController = {
                 manytimes,
                 items,
                 undergoing: true,
+                sumCount: 0,
                 created_at: new Date(),
               },
               async (err: Error, data: any) => {
@@ -419,6 +431,7 @@ export let VoteController = {
                 manytimes,
                 items,
                 undergoing: true,
+                sumCount: 0,
                 created_at: new Date(),
               },
               async (err: Error, data: any) => {
@@ -457,6 +470,7 @@ export let VoteController = {
       }
     },
   },
+
   // FIXME: Show Vote
   // 회원, 비회원 분기해서 보여주기
   show_vote: {
@@ -490,16 +504,7 @@ export let VoteController = {
                 .findOne(
                   { user_id: data.user_id, _id: new ObjectId(voteId) },
                   (err: Error, data: any) => {
-                    console.log("data", data);
-                    if (data.format !== "open") {
-                      let sumCount: number = 0;
-                      for (let el of data.items) {
-                        sumCount += el.count;
-                      }
-                      return res.status(200).json({ data: data, sumCount });
-                    } else {
-                      return res.status(200).json({ data: data });
-                    }
+                    return res.status(200).json({ data: data });
                   }
                 );
             }
@@ -524,15 +529,15 @@ export let VoteController = {
                 60;
               overtime = Math.round(overtime);
 
-              if (data.format !== "open") {
-                let sumCount: number = 0;
-                for (let el of data.items) {
-                  sumCount += el.count;
-                }
-                return res.status(200).json({ data: data, overtime, sumCount });
-              } else {
-                return res.status(200).json({ data: data, overtime });
-              }
+              // if (data.format !== "open") {
+              //   let sumCount: number = 0;
+              //   for (let el of data.items) {
+              //     sumCount += el.count;
+              //   }
+              //   return res.status(200).json({ data: data, overtime, sumCount });
+              // } else {
+              return res.status(200).json({ data: data, overtime });
+              // }
             });
         } else {
           // 로그인이 풀리는 경우(accessToken 만료 됬을때)

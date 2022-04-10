@@ -5,9 +5,6 @@ import express, {
   Response,
   NextFunction,
 } from "express";
-import { request } from "http";
-import { read } from "fs";
-import { ObjectId } from "mongodb";
 const jwt = require("jsonwebtoken");
 import dotenv from "dotenv";
 dotenv.config();
@@ -39,21 +36,9 @@ export let VoterController = {
             .collection("user")
             .findOne({ user_id: memberVoteData.user_id });
 
-          if (memberVoteData.format !== "open") {
-            let sumCount: number = 0;
-            for (let el of memberVoteData.items) {
-              sumCount += el.count;
-            }
-            return res.status(200).json({
-              vote_data: memberVoteData,
-              user_data: userData,
-              sumCount,
-            });
-          } else {
-            return res
-              .status(200)
-              .json({ vote_data: memberVoteData, user_data: userData });
-          }
+          return res
+            .status(200)
+            .json({ vote_data: memberVoteData, user_data: userData });
         } else if (!memberVoteData) {
           const nonmemberVoteData = await db
             .collection("non-member")
@@ -67,19 +52,9 @@ export let VoterController = {
             60;
           overtime = Math.round(overtime);
 
-          if (nonmemberVoteData.format !== "open") {
-            let sumCount: number = 0;
-            for (let el of nonmemberVoteData.items) {
-              sumCount += el.count;
-            }
-            return res
-              .status(200)
-              .json({ vote_data: nonmemberVoteData, sumCount, overtime });
-          } else {
-            return res
-              .status(200)
-              .json({ vote_data: nonmemberVoteData, overtime });
-          }
+          return res
+            .status(200)
+            .json({ vote_data: nonmemberVoteData, overtime });
         } else {
           return res.status(400).json({ message: "Bad Request" });
         }
@@ -93,15 +68,25 @@ export let VoterController = {
   // bar => 해당 idx countup
   vote: {
     patch: async (req: Request & { body: any }, res: Response) => {
-      const { idx, content }: PatchVote = req.body;
-      console.log();
+      let { idx, content }: PatchVote = req.body;
+
+      let viewContent = "";
+      if (content) {
+        for (let el of content) {
+          if (el === " ") {
+            continue;
+          } else {
+            viewContent += el.toLowerCase();
+          }
+        }
+      }
 
       try {
         const findMemberVote = await db
           .collection("vote")
           .findOne({ url: Number(req.params.accessCode) });
 
-        // 회원인지 비회원인지,  확인
+        // 회원인지 비회원인지 확인
         if (findMemberVote !== null) {
           // format이 'bar', 'versus' 일때
           if (
@@ -121,6 +106,53 @@ export let VoterController = {
               }
             }
 
+            // sumCount update
+            const updatedMemberVote = await db
+              .collection("vote")
+              .findOne({ url: Number(req.params.accessCode) });
+
+            let sumCount = 0;
+            for (let el of updatedMemberVote.items) {
+              sumCount += el.count;
+            }
+            await db
+              .collection("vote")
+              .updateOne(
+                { url: Number(req.params.accessCode) },
+                { $set: { sumCount } }
+              );
+
+            // voterCount update +1
+            await db
+              .collection("vote")
+              .updateOne(
+                { url: Number(req.params.accessCode) },
+                { $inc: { voterCount: 1 } }
+              );
+
+            // variance update
+            let total = 0;
+            for (let el of findMemberVote.items) {
+              total += el.count;
+            }
+            let average = total / findMemberVote.items.length;
+
+            total = 0;
+
+            for (let i = 0; i < findMemberVote.items.length; i++) {
+              let deviation = findMemberVote.items[i].count - average;
+
+              total += deviation * deviation;
+            }
+            let variance = total / (findMemberVote.items.length - 1);
+
+            await db
+              .collection("vote")
+              .updateOne(
+                { url: Number(req.params.accessCode) },
+                { $set: { variance } }
+              );
+
             return res.status(200).json({ message: "Successfully reflected" });
 
             // FIXME: format이 'open' 일때 => response 추가
@@ -139,13 +171,21 @@ export let VoterController = {
               }
             );
 
+            // voterCount update +1
+            await db
+              .collection("vote")
+              .updateOne(
+                { url: Number(req.params.accessCode) },
+                { $inc: { voterCount: 1 } }
+              );
+
             return res.status(200).json({ message: "Successfully reflected" });
 
-            // FIXME: format이 'open' 일때 => items에 추가 또는 data가 있을때 items.idx count +1
+            // FIXME: format이 'word' 일때 => items에 추가 또는 data가 있을때 items.idx count +1
           } else if (findMemberVote.format === "word") {
             const findContent = await db.collection("vote").findOne({
               url: Number(req.params.accessCode),
-              "items.content": content,
+              "items.content": viewContent,
             });
 
             // 작성된 content와 동일한 content가 있을때 => count up
@@ -153,15 +193,62 @@ export let VoterController = {
               await db.collection("vote").updateOne(
                 {
                   url: Number(req.params.accessCode),
-                  "items.content": content,
+                  "items.content": viewContent,
                 },
                 { $inc: { "items.$.count": 1 } }
               );
 
+              // sumCount update
+              const updatedMemberVote = await db
+                .collection("vote")
+                .findOne({ url: Number(req.params.accessCode) });
+
+              let sumCount = 0;
+              for (let el of updatedMemberVote.items) {
+                sumCount += el.count;
+              }
+              await db
+                .collection("vote")
+                .updateOne(
+                  { url: Number(req.params.accessCode) },
+                  { $set: { sumCount } }
+                );
+
+              // voterCount update +1
+              await db
+                .collection("vote")
+                .updateOne(
+                  { url: Number(req.params.accessCode) },
+                  { $inc: { voterCount: 1 } }
+                );
+
+              // variance update
+              let total = 0;
+              for (let el of findMemberVote.items) {
+                total += el.count;
+              }
+              let average = total / findMemberVote.items.length;
+
+              total = 0;
+
+              for (let i = 0; i < findMemberVote.items.length; i++) {
+                let deviation = findMemberVote.items[i].count - average;
+
+                total += deviation * deviation;
+              }
+              let variance = total / (findMemberVote.items.length - 1);
+
+              await db
+                .collection("vote")
+                .updateOne(
+                  { url: Number(req.params.accessCode) },
+                  { $set: { variance } }
+                );
+
               return res
                 .status(200)
                 .json({ message: "Successfully reflected" });
-              // 작성된 content와 동일한 content가 없을때 => push content
+              // format: 'open'작성된 content와 동일한 content가 없을때 => push content
             } else {
               await db.collection("vote").updateOne(
                 { url: Number(req.params.accessCode) },
@@ -169,12 +256,47 @@ export let VoterController = {
                   $push: {
                     items: {
                       idx: findMemberVote.items.length,
-                      content,
-                      count: 0,
+                      content: viewContent,
+                      count: 1,
                     },
                   },
                 }
               );
+
+              // voterCount update +1
+              await db
+                .collection("vote")
+                .updateOne(
+                  { url: Number(req.params.accessCode) },
+                  { $inc: { voterCount: 1 } }
+                );
+
+              const updatedVote = await db
+                .collection("vote")
+                .findOne({ url: Number(req.params.accessCode) });
+
+              // variance update
+              let total = 0;
+              for (let el of updatedVote.items) {
+                total += el.count;
+              }
+              let average = total / updatedVote.items.length;
+
+              total = 0;
+
+              for (let i = 0; i < updatedVote.items.length; i++) {
+                let deviation = updatedVote.items[i].count - average;
+
+                total += deviation * deviation;
+              }
+              let variance = total / (updatedVote.items.length - 1);
+
+              await db
+                .collection("vote")
+                .updateOne(
+                  { url: Number(req.params.accessCode) },
+                  { $set: { variance } }
+                );
 
               return res
                 .status(200)
@@ -210,6 +332,22 @@ export let VoterController = {
               }
             }
 
+            // sumCount update
+            const updatedNonMemberVote = await db
+              .collection("non-member")
+              .findOne({ url: Number(req.params.accessCode) });
+
+            let sumCount = 0;
+            for (let el of updatedNonMemberVote.items) {
+              sumCount += el.count;
+            }
+            await db
+              .collection("non-member")
+              .updateOne(
+                { url: Number(req.params.accessCode) },
+                { $set: { sumCount } }
+              );
+
             return res.status(200).json({ message: "Successfully reflected" });
 
             // format이 'open' 일때 => response 추가
@@ -234,7 +372,7 @@ export let VoterController = {
           } else if (findNonMemberVote.format === "word") {
             const findContent = await db.collection("non-member").findOne({
               url: Number(req.params.accessCode),
-              "items.content": content,
+              "items.content": viewContent,
             });
 
             // 작성된 content와 동일한 content가 있을때 => count up
@@ -242,10 +380,26 @@ export let VoterController = {
               await db.collection("non-member").updateOne(
                 {
                   url: Number(req.params.accessCode),
-                  "items.content": content,
+                  "items.content": viewContent,
                 },
                 { $inc: { "items.$.count": 1 } }
               );
+
+              // sumCount update
+              const updatedNonMemberVote = await db
+                .collection("non-member")
+                .findOne({ url: Number(req.params.accessCode) });
+
+              let sumCount = 0;
+              for (let el of updatedNonMemberVote.items) {
+                sumCount += el.count;
+              }
+              await db
+                .collection("non-member")
+                .updateOne(
+                  { url: Number(req.params.accessCode) },
+                  { $set: { sumCount } }
+                );
 
               return res
                 .status(200)
@@ -258,8 +412,8 @@ export let VoterController = {
                   $push: {
                     items: {
                       idx: findNonMemberVote.items.length,
-                      content,
-                      count: 0,
+                      content: viewContent,
+                      count: 1,
                     },
                   },
                 }

@@ -4,8 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setIsLogin, RootState, setUserInfo } from "../../store/index";
 import { useNavigate } from "react-router-dom";
 import "./Delete.scss";
+import vtCry from "../../assets/vt_cry.png";
 
-const serverURL: string = "https://test.v-ting.net";
+
+const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 function Delete() {
   const dispatch = useDispatch();
@@ -48,6 +51,7 @@ function Delete() {
     setModalState(false);
   };
 
+  const [withdrawalOk, setWithdrawalOk] = useState<boolean>(false);
   const deleteUser = async () => {
     let accessToken = localStorage.getItem("accessToken");
     try {
@@ -59,12 +63,11 @@ function Delete() {
       });
 
       if (res.status === 200) {
-        localStorage.setItem("accessToken", res.data.data.accessToken);
-        console.log("회원탈퇴완료===", res.data.data);
-        alert("회원탈퇴가 완료되었습니다.");
-        // ? 로그아웃처리
+        console.log(res.data.message);
+        localStorage.removeItem("accessToken");
         dispatch(setIsLogin(false));
-        navigate("/");
+        setWithdrawalOk(true);
+        setModalState(false);
       }
     } catch (err) {
       console.log(err);
@@ -74,25 +77,48 @@ function Delete() {
   return (
     <div className="delete_container">
       <header className="delete_header">
-        <h1>회원탈퇴</h1>
+        <div className="delete_header_desc">
+          <h3> {userInfo.nickname} 님, 안녕하세요!</h3>
+        </div>
       </header>
 
       <main className="delete_wrap">
+        <nav className="userInfo_nav">
+          <button
+            className="userInfo_navBtn"
+            onClick={() => navigate("/myPage")}
+          >
+            회원정보 관리
+          </button>
+          <button
+            className="userInfo_navBtn_active"
+            onClick={() => navigate("/myPage/delete")}
+          >
+            회원탈퇴 관리
+          </button>
+        </nav>
+
         <div className="delete_profile">
-          <img src={userInfo.image} alt="프로필이미지" />
-        </div>
-        <div className="delete_userInfo">
-          <h1>닉네임 : {userInfo.nickname}</h1>
-          <h1>이메일 : {userInfo.email}</h1>
+          <img
+            src={vtCry}
+            alt="cry_img"
+            style={{ width: "300px", marginTop: "1em" }}
+          />
+
+          <div className="delete_userInfo">
+            <h1>닉네임 : {userInfo.nickname}</h1>
+            <h1>이메일 : {userInfo.email}</h1>
+          </div>
+
+          <div className="delete_btnWrap">
+            <button className="delete_btn" onClick={openModal}>
+              탈퇴하기
+            </button>
+          </div>
         </div>
       </main>
 
-      <div className="delete_btnWrap">
-        <button className="delete_btn" onClick={openModal}>
-          탈퇴하기
-        </button>
-      </div>
-      {modalState ? (
+      {modalState && (
         <div className="deleteModal_container">
           <div className="deleteModal_background">
             <div className="deleteModal_modal">
@@ -117,8 +143,37 @@ function Delete() {
             </div>
           </div>
         </div>
-      ) : (
-        <div></div>
+      )}
+      {withdrawalOk && (
+        <div className="withdrawalOk_container">
+          <div className="withdrawalOk_background">
+            <div className="withdrawalOk_modal">
+              <button
+                className="withdrawalOk_closeBtn"
+                onClick={() => navigate(-1)}
+              >
+                X
+              </button>
+              <div className="withdrawalOk_desc">
+                <h3>회원탈퇴 되었습니다.</h3>
+              </div>
+              <div className="withdrawalOk_btnWrap">
+                <button
+                  className="withdrawalOk_ok"
+                  onClick={() => navigate("/")}
+                >
+                  확인
+                </button>
+                <button
+                  className="withdrawalOk_cancel"
+                  onClick={() => navigate(-1)}
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

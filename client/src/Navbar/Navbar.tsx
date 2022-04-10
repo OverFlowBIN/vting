@@ -1,72 +1,73 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.scss";
 import Logo from "../assets/vt_logo_1.png";
-import Profile from "../assets/yof_logo-17.jpg";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, setIsLogin, setUserInfo } from "../store/index";
 import axios from "axios";
 import ProgressBar from "../Info/ProgressBar";
+import { BiMenu, BiX } from "react-icons/bi";
 
-const serverURL: string = "https://test.v-ting.net";
+
+const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [homeMode, setHomeMode] = useState(false);
   let location = useLocation();
+  const [isMoblieMenuClicked, setMoblieMenuClicked] = useState(false);
   const userInfo = useSelector((state: RootState) => state.userInfo);
   let isLoginState = useSelector((state: RootState) => state.isLogin);
   let loginState = isLoginState.login;
 
   useEffect(() => {
+    const NavbarUserInfo = async () => {
+      let accessToken = localStorage.getItem("accessToken");
+
+      if (document.location.href.includes("vote") || !accessToken) {
+        // vote. 경로로 접속한 경우이므로 로그인 요청을 보내지 않습니다.
+      } else {
+        let accessToken = localStorage.getItem("accessToken");
+        try {
+          await axios
+            .get(`${serverURL}/auth`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                withCredentials: true,
+              },
+            })
+            .then((res) => {
+              if (res.status === 200) {
+                settingLogin();
+                dispatch(
+                  setUserInfo({
+                    _id: res.data.data._id,
+                    nickname: res.data.data.nickname,
+                    email: res.data.data.user_id,
+                    image: res.data.data.image,
+                  })
+                );
+              } else {
+                console.error("400 Error");
+              }
+            });
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
     NavbarUserInfo();
     // home 화면에서만 Vting 배너 출력
     if (location.pathname === "/") setHomeMode(true);
     else setHomeMode(false);
   }, [location]);
 
-  const NavbarUserInfo = async () => {
-    let accessToken = localStorage.getItem("accessToken");
-    try {
-      await axios
-        .get(`${serverURL}/auth`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            withCredentials: true,
-          },
-        })
-        .then((res) => {
-          if (res.status === 200) {
-            settingLogin();
-            // Object.assign(
-            //   {},
-            //   userInfo,
-            //   res.data.data.user_id,
-            //   res.data.data.nickname
-            // );
-            dispatch(
-              setUserInfo({
-                _id: res.data.data._id,
-                nickname: res.data.data.nickname,
-                email: res.data.data.user_id,
-              })
-            );
-          } else {
-            console.error("400 Error");
-          }
-        });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  // ? 로그인 핸들링
   const settingLogin = () => {
     dispatch(setIsLogin(true));
   };
-  // ? 로그아웃 핸들링
+
   const handleLogout = async () => {
     let accessToken = localStorage.getItem("accessToken");
     try {
@@ -80,7 +81,7 @@ function Navbar() {
         const token = res.data.data.accessToken;
         localStorage.setItem("accessToken", token);
         dispatch(setIsLogin(false));
-        navigate(-1);
+        navigate("/");
       }
     } catch (err) {
       console.log(err);
@@ -99,32 +100,41 @@ function Navbar() {
         {loginState ? (
           <div className="NavRight">
             <Link className="nav-link link" to="/">
-              Home
+              홈
             </Link>
             <Link className="nav-link link" to="dashboard">
-              Dashboard
+              대시보드
             </Link>
             <Link className="nav-link link" to="new">
-              Vote
+              설문만들기
             </Link>
 
             <div className="profile">
               <div>
                 <img
-                  src={Profile}
+                  src={userInfo.image}
                   alt="profile_img"
-                  style={{ width: "60px", borderRadius: "50%" }}
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                  }}
                 />
 
                 <ul className="subMenu">
                   <div className="subMenuLi">
                     <div className="username">{userInfo.nickname} 님 🧡</div>
                     <Link className="nav-link link" to="myPage">
-                      MyPage
+                      마이페이지
                     </Link>
-                  </div>
-                  <div className="nav-link link" onClick={() => handleLogout()}>
-                    SingOut
+
+                    <div
+                      className="nav-link link"
+                      onClick={() => handleLogout()}
+                    >
+                      로그아웃
+                    </div>
                   </div>
                 </ul>
               </div>
@@ -133,16 +143,118 @@ function Navbar() {
         ) : (
           <div className="NavRight">
             <Link className="nav-link link" to="/">
-              Home
+              홈
             </Link>
             <Link className="nav-link link" to="new">
-              Vote
+              설문만들기
             </Link>
             <Link className="nav-link link" to="signIn">
-              SignIn
+              로그인
             </Link>
           </div>
         )}
+      </div>
+
+      <div className="NavBarMobile">
+        <div className="NavLeft">
+          <Link to="/">
+            <img src={Logo} alt="logo" style={{ width: "100px" }} />
+          </Link>
+        </div>
+        <div
+          className="NavMobileMenuBtn"
+          onClick={() => setMoblieMenuClicked(!isMoblieMenuClicked)}
+        >
+          {isMoblieMenuClicked ? <BiX /> : <BiMenu />}
+        </div>
+        <div
+          className={
+            isMoblieMenuClicked ? "NavMobileMenu block" : "NavMobileMenu"
+          }
+        >
+          {loginState ? (
+            <div className="loginUserMenu">
+              <div className="profile">
+                <div className="profileCon">
+                  <div className="username">{userInfo.nickname} 님 🧡</div>
+                  <img
+                    src={userInfo.image}
+                    alt="profile_img"
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </div>
+                <Link
+                  className="nav-link link"
+                  to="myPage"
+                  onClick={() => setMoblieMenuClicked(false)}
+                >
+                  마이페이지
+                </Link>
+                <div
+                  className="nav-link link"
+                  onClick={() => {
+                    handleLogout();
+                    setMoblieMenuClicked(false);
+                  }}
+                >
+                  SingOut
+                </div>
+              </div>
+              <div className="menu">
+                <Link
+                  className="nav-link link"
+                  to="/"
+                  onClick={() => setMoblieMenuClicked(false)}
+                >
+                  홈
+                </Link>
+                <Link
+                  className="nav-link link"
+                  to="dashboard"
+                  onClick={() => setMoblieMenuClicked(false)}
+                >
+                  대시보드
+                </Link>
+                <Link
+                  className="nav-link link"
+                  to="new"
+                  onClick={() => setMoblieMenuClicked(false)}
+                >
+                  설문만들기
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="logoutUserMenu">
+              <Link
+                className="nav-link link"
+                to="/"
+                onClick={() => setMoblieMenuClicked(false)}
+              >
+                홈
+              </Link>
+              <Link
+                className="nav-link link"
+                to="new"
+                onClick={() => setMoblieMenuClicked(false)}
+              >
+                설문만들기
+              </Link>
+              <Link
+                className="nav-link link"
+                to="signIn"
+                onClick={() => setMoblieMenuClicked(false)}
+              >
+                로그인
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
       <ProgressBar />
     </div>
@@ -164,7 +276,9 @@ function VotingBanner() {
           ></input>
         </div>
         <a
-          href={`https://vote.v-ting.net/${vtingCode}`}
+
+          href={`${process.env.REACT_APP_CLIENT_URL}/${vtingCode}`}
+
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -174,5 +288,4 @@ function VotingBanner() {
     </div>
   );
 }
-
 export default Navbar;

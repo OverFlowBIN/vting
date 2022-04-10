@@ -10,6 +10,10 @@ import {
 } from "../store/index";
 import vtinglogo from "../assets/vt_logo_2.png";
 import VoteButton from "./VoteButton";
+import option_alt_image_1 from "../assets/option_alts/option_alt_img_1.svg";
+import option_alt_image_2 from "../assets/option_alts/option_alt_img_2.svg";
+import AOS from "aos";
+AOS.init();
 
 function VoteMaker() {
   const newVoteFormat = useSelector(
@@ -27,7 +31,7 @@ function VoteMaker() {
       return <WordCloud />;
     default:
       return (
-        <div className="voteMakerCon">
+        <div className="voteMakerCon" data-aos="flip-left">
           <img src={vtinglogo} className="vting-logo" alt="vting-logo" />
         </div>
       );
@@ -50,6 +54,8 @@ function Bar() {
   const [titleShake, setTitleShake] = useState(false);
   const [everytingIsOk, setEverythingIsOk] = useState(false);
   const [itemShake, setItemShake] = useState(false);
+  const [option1, setOption1] = useState(false);
+  const [option2, setOption2] = useState(false);
 
   useEffect(() => {
     if (newVote.title) setTitleShake(false);
@@ -74,12 +80,12 @@ function Bar() {
   };
 
   return (
-    <div className="voteMakerCon">
+    <div className="voteMakerCon" data-aos="flip-left">
       <label
         className={titleShake ? "voteLabel shakeIt" : "voteLabel"}
         htmlFor="voteTitle"
       >
-        &#128073; 설문 제목을 입력하세요.
+        &#128073; STEP1. 설문 제목을 입력하세요.
       </label>
       <input
         className="VotetextInput"
@@ -96,7 +102,7 @@ function Bar() {
           titleShake ? "voteLabel topMargin10 shakeIt" : "voteLabel topMargin10"
         }
       >
-        &#128073; 객관식 응답을 입력하세요.
+        &#128073; STEP2. 선택지를 만들어보세요.
       </div>
       <div className="voteAnswers">
         {newVoteItems?.map((el, idx) => (
@@ -120,8 +126,12 @@ function Bar() {
             className="VoteAnswerInput"
             value={typedItem}
             placeholder="이곳에 항목을 입력하고 + 버튼으로 추가하세요."
+            onBlur={() => plusTriger()}
             onChange={(e) => {
               setTypedItem(e.target.value);
+            }}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") plusTriger();
             }}
           ></input>
           <div className="plusItem" onClick={() => plusTriger()}>
@@ -134,7 +144,7 @@ function Bar() {
       </div>
 
       <div className="voteLabel topMargin10">
-        &#128073; 설문 옵션을 선택하세요.
+        &#128073; STEP3. 설문 옵션을 선택하세요.
       </div>
 
       <div className="voteOptionItems">
@@ -153,6 +163,16 @@ function Bar() {
             </svg>
           </div>
           <label htmlFor="voteMultiple">다중선택 가능</label>
+          <div className="option" onClick={() => setOption1(!option1)}>
+            ?
+          </div>
+        </div>
+        <div className={option1 ? "optionAlt block" : "optionAlt"}>
+          <img src={option_alt_image_1} alt="option_Alt" />
+          여러 개의 선택지를 한꺼번에 고를 수 있는 설문으로 만드시려면 이 옵션에
+          체크하세요.
+          <br />
+          체크하지 않을 경우 한가지 선택지만 선택 가능한 설문으로 만들어집니다.
         </div>
         <div className="voteOptionItem">
           <div
@@ -169,6 +189,17 @@ function Bar() {
             </svg>
           </div>
           <label htmlFor="voteManytimes">여러번 응답 가능</label>
+          <div className="option" onClick={() => setOption2(!option2)}>
+            ?
+          </div>
+        </div>
+        <div className={option2 ? "optionAlt block" : "optionAlt"}>
+          <img src={option_alt_image_2} alt="option_Alt" />
+          한 사람이 여러 번 응답할 수 있는 설문으로 만드시려면 이 옵션에
+          체크하세요.
+          <br />
+          체크하지 않을 경우 한 기기에서 한 번만 응답이 가능한 설문으로
+          만들어집니다.
         </div>
       </div>
       <VoteButton
@@ -185,6 +216,7 @@ function OpenEnded() {
   const newVoteTitle = newVote.title;
   const newVoteMt = newVote.manytimes;
   const dispatch = useDispatch();
+  const [option2, setOption2] = useState(false);
 
   const [titleShake, setTitleShake] = useState(false);
   const [everytingIsOk, setEverythingIsOk] = useState(false);
@@ -199,12 +231,12 @@ function OpenEnded() {
   }, [newVote.title]);
 
   return (
-    <div className="voteMakerCon">
+    <div className="voteMakerCon" data-aos="flip-left">
       <label
         className={titleShake ? "voteLabel shakeIt" : "voteLabel"}
         htmlFor="voteTitle"
       >
-        &#128073; 설문 제목을 입력하세요.
+        &#128073; STEP1. 설문 제목을 입력하세요.
       </label>
       <input
         className="VotetextInput"
@@ -217,7 +249,7 @@ function OpenEnded() {
       </div>
 
       <div className="voteLabel topMargin10">
-        &#128073; 설문 옵션을 선택하세요.
+        &#128073; STEP2. 설문 옵션을 선택하세요.
       </div>
 
       <div className="voteOptionItems">
@@ -242,6 +274,17 @@ function OpenEnded() {
             </svg>
           </div>
           <label htmlFor="voteManytimes">여러번 응답 가능</label>
+          <div className="option" onClick={() => setOption2(!option2)}>
+            ?
+          </div>
+        </div>
+        <div className={option2 ? "optionAlt block" : "optionAlt"}>
+          <img src={option_alt_image_2} alt="option_Alt" />
+          한 사람이 여러 번 응답할 수 있는 설문으로 만드시려면 이 옵션에
+          체크하세요.
+          <br />
+          체크하지 않을 경우 한 기기에서 한 번만 응답이 가능한 설문으로
+          만들어집니다.
         </div>
       </div>
       <VoteButton everytingIsOk={everytingIsOk} setTitleShake={setTitleShake} />
@@ -256,6 +299,8 @@ function Versus() {
   const newVoteMp = newVote.multiple;
   const newVoteItems = newVote.items;
   const dispatch = useDispatch();
+  const [option1, setOption1] = useState(false);
+  const [option2, setOption2] = useState(false);
 
   const [titleShake, setTitleShake] = useState(false);
   const [everytingIsOk, setEverythingIsOk] = useState(false);
@@ -268,12 +313,12 @@ function Versus() {
   }, [newVote.title, newVote.items]);
 
   return (
-    <div className="voteMakerCon">
+    <div className="voteMakerCon" data-aos="flip-left">
       <label
         className={titleShake ? "voteLabel shakeIt" : "voteLabel"}
         htmlFor="voteTitle"
       >
-        &#128073; 설문 제목을 입력하세요.
+        &#128073; STEP1. 설문 제목을 입력하세요.
       </label>
       <input
         className="VotetextInput"
@@ -286,7 +331,7 @@ function Versus() {
       </div>
 
       <div className="voteLabel topMargin10">
-        &#128073; 대결 항목을 입력하세요.
+        &#128073; STEP2. 대결 항목을 입력하세요.
       </div>
       <div className="voteAnswers versusAnswers">
         <div className="voteAnswer versusAnswer">
@@ -314,8 +359,9 @@ function Versus() {
       </div>
 
       <div className="voteLabel topMargin10">
-        &#128073; 설문 옵션을 선택하세요.
+        &#128073; STEP3. 설문 옵션을 선택하세요.
       </div>
+
       <div className="voteOptionItems">
         <div className="voteOptionItem">
           <div
@@ -332,6 +378,16 @@ function Versus() {
             </svg>
           </div>
           <label htmlFor="voteMultiple">다중선택 가능</label>
+          <div className="option" onClick={() => setOption1(!option1)}>
+            ?
+          </div>
+        </div>
+        <div className={option1 ? "optionAlt block" : "optionAlt"}>
+          <img src={option_alt_image_1} alt="option_Alt" />
+          여러 개의 선택지를 한꺼번에 고를 수 있는 설문으로 만드시려면 이 옵션에
+          체크하세요.
+          <br />
+          체크하지 않을 경우 한가지 선택지만 선택 가능한 설문으로 만들어집니다.
         </div>
         <div className="voteOptionItem">
           <div
@@ -348,6 +404,17 @@ function Versus() {
             </svg>
           </div>
           <label htmlFor="voteManytimes">여러번 응답 가능</label>
+          <div className="option" onClick={() => setOption2(!option2)}>
+            ?
+          </div>
+        </div>
+        <div className={option2 ? "optionAlt block" : "optionAlt"}>
+          <img src={option_alt_image_2} alt="option_Alt" />
+          한 사람이 여러 번 응답할 수 있는 설문으로 만드시려면 이 옵션에
+          체크하세요.
+          <br />
+          체크하지 않을 경우 한 기기에서 한 번만 응답이 가능한 설문으로
+          만들어집니다.
         </div>
       </div>
       <VoteButton
@@ -364,6 +431,7 @@ function WordCloud() {
   const newVoteTitle = newVote.title;
   const newVoteMt = newVote.manytimes;
   const dispatch = useDispatch();
+  const [option2, setOption2] = useState(false);
 
   const [titleShake, setTitleShake] = useState(false);
   const [everytingIsOk, setEverythingIsOk] = useState(false);
@@ -378,12 +446,12 @@ function WordCloud() {
   }, [newVote.title]);
 
   return (
-    <div className="voteMakerCon">
+    <div className="voteMakerCon" data-aos="flip-left">
       <label
         className={titleShake ? "voteLabel shakeIt" : "voteLabel"}
         htmlFor="voteTitle"
       >
-        &#128073; 설문 제목을 입력하세요.
+        &#128073; STEP1. 설문 제목을 입력하세요.
       </label>
       <input
         className="VotetextInput"
@@ -396,7 +464,7 @@ function WordCloud() {
       </div>
 
       <div className="voteLabel topMargin10">
-        &#128073; 설문 옵션을 선택하세요.
+        &#128073; STEP2. 설문 옵션을 선택하세요.
       </div>
 
       <div className="voteOptionItems">
@@ -421,6 +489,17 @@ function WordCloud() {
             </svg>
           </div>
           <label htmlFor="voteManytimes">여러번 응답 가능</label>
+          <div className="option" onClick={() => setOption2(!option2)}>
+            ?
+          </div>
+        </div>
+        <div className={option2 ? "optionAlt block" : "optionAlt"}>
+          <img src={option_alt_image_2} alt="option_Alt" />
+          한 사람이 여러 번 응답할 수 있는 설문으로 만드시려면 이 옵션에
+          체크하세요.
+          <br />
+          체크하지 않을 경우 한 기기에서 한 번만 응답이 가능한 설문으로
+          만들어집니다.
         </div>
       </div>
       <VoteButton everytingIsOk={everytingIsOk} setTitleShake={setTitleShake} />

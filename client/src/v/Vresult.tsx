@@ -7,6 +7,8 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { patchGetVote, RootState } from "../store/index";
+import AOS from "aos";
+AOS.init();
 
 type IntervalFunction = () => unknown | void;
 
@@ -45,11 +47,13 @@ function Vresult() {
   const { code } = useParams();
   const voteData = useSelector((state: RootState) => state.getVote);
   const items = voteData.items;
-  const sum = voteData.sumCount || 0;
+  const [sum, setSum] = useState(voteData.sumCount || 0);
   const format = voteData.format;
   const type = voteData.type;
   const dispatch = useDispatch();
-  const serverURL = "https://test.v-ting.net";
+
+  const serverURL = process.env.REACT_APP_SERVER_URL;
+
   const [words, setWords] = useState([{ text: "", value: 10 }]);
 
   // 워드클라우드 세팅
@@ -86,14 +90,21 @@ function Vresult() {
               items:
                 response.data.vote_data.items ||
                 response.data.vote_data.response,
-              sumCount: response.data.sumCount || 0,
+              sumCount: response.data.vote_data.sumCount || 0,
               format: response.data.vote_data.format,
               type: response.data.vote_data.type || "",
             })
           );
+          setSum(response.data.vote_data.sumCount);
         }
       } catch (e) {
-        console.log(e);
+        dispatch(
+          patchGetVote({
+            title: "",
+            items: [],
+            format: "",
+          })
+        );
       }
     }
     getAnswers();
@@ -105,7 +116,7 @@ function Vresult() {
     if (response.status === 200) {
       if (
         response.data.vote_data.format === "word" &&
-        response.data.sumCount === voteData.sumCount
+        response.data.vote_data.sumCount === sum
       ) {
         // do nothing
       } else {
@@ -114,7 +125,7 @@ function Vresult() {
             title: response.data.vote_data.title,
             items:
               response.data.vote_data.items || response.data.vote_data.response,
-            sumCount: response.data.sumCount || 0,
+            sumCount: response.data.vote_data.sumCount || 0,
           })
         );
       }
@@ -161,6 +172,7 @@ function Vresult() {
                         <div className="triangle"></div>
                       </div>
                       <div
+                        title={el.count?.toString()}
                         className="barVer-itemBar"
                         style={makeRandomHeight(
                           el.count as number,
@@ -189,6 +201,7 @@ function Vresult() {
                         <div className="triangle"></div>
                       </div>
                       <div
+                        title={el.count?.toString()}
                         className="barHor-itemBar"
                         style={makeRandomWidth(
                           el.count as number,
@@ -213,6 +226,7 @@ function Vresult() {
             {items ? (
               items.map((el, idx) => (
                 <div
+                  data-aos="flip-left"
                   className={
                     idx < 4
                       ? `openendIcon border${idx + 1}`
@@ -233,11 +247,21 @@ function Vresult() {
       return (
         <div className="realTimeCon">
           <div className="versusCon">
-            <div className="item1" style={fontSizeChange1}>
+            <div
+              className="item1"
+              style={fontSizeChange1}
+              data-aos="flip-left"
+              title={items[0].count?.toString()}
+            >
               {items.length ? items[0].content : ""}
             </div>
             <div className="vs">vs</div>
-            <div className="item2" style={fontSizeChange2}>
+            <div
+              className="item2"
+              style={fontSizeChange2}
+              data-aos="flip-left"
+              title={items[0].count?.toString()}
+            >
               {items.length ? items[1].content : ""}
             </div>
           </div>
@@ -246,7 +270,7 @@ function Vresult() {
     case "word":
       return <ReactWordcloud words={words} options={options} />;
     default:
-      return <div>데이터 불러오기 실패</div>;
+      return <div>설문 정보를 불러올 수 없습니다.</div>;
   }
 }
 

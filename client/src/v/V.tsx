@@ -20,46 +20,12 @@ import axios from "axios";
 import Vresult from "./Vresult";
 import Counter from "../Voter/Counter";
 import vtCry from "../assets/vt_cry.png";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, patchGetVote, ResultVoteInfo } from "../store/index";
+import AOS from "aos";
+AOS.init();
 
 const imgAlertContext = createContext<any | null>(null);
-
-interface Item {
-  idx: number;
-  content: string;
-  count?: number;
-}
-
-interface VoteInfo {
-  _id?: string;
-  user_id?: string;
-  password?: string;
-  url?: number;
-  title?: string;
-  format?: string;
-  type?: string;
-  items?: Item[];
-  multiple?: boolean;
-  manytimes?: boolean;
-  undergoing?: boolean;
-  isPublic?: boolean;
-  created_at?: string;
-}
-
-const dummyVote: VoteInfo = {
-  _id: "",
-  user_id: "",
-  password: "",
-  url: 0,
-  title: "",
-  format: "",
-  type: "",
-  items: [],
-  multiple: false,
-  manytimes: false,
-  undergoing: false,
-  isPublic: false,
-  created_at: "",
-};
 
 interface Props {
   setIsNonUser: Dispatch<SetStateAction<boolean>>;
@@ -73,49 +39,82 @@ function V() {
   const [togglePublic, setTogglePublic] = useState(true);
   const [toggleOngoing, setToggleOngoing] = useState(true);
   const [voteTitle, setVoteTitle] = useState("");
-  const [voteInfo, setVoteInfo] = useState(dummyVote);
-  const [voteSumCount, setVoteSumCount] = useState(0);
   const [isNonUser, setIsNonUser] = useState(false);
   const [overtime, setOvertime] = useState(0);
   const [somethingWrong, setSometingWrong] = useState(false);
+  const voteInfo = useSelector((state: RootState) => state.getVote);
+  const votePass = voteInfo.password;
+  const dispatch = useDispatch();
 
-  const serverURL = "https://test.v-ting.net";
+
+  const serverURL = process.env.REACT_APP_SERVER_URL;
+
   const accessToken = localStorage.getItem("accessToken");
 
   useEffect(() => {
     const voteResult = async () => {
       try {
-        const response = await axios.get(`${serverURL}/vting/${code}`, {
+        const response = await axios.get(`${serverURL}/voter/${code}`, {
           headers: {
-            Authorization: accessToken ? `Bearer ${accessToken}` : "",
             withCredentials: true,
           },
         });
-
-        // 응답 객체에 password가 있으면 -> 비회원 설문조사임
-        if (response.status === 200 && response.data.data.password) {
-          setVoteInfo(response.data.data);
-          setVoteTitle(response.data.data.title);
-          setToggleOngoing(response.data.data.undergoing);
-          setTogglePublic(response.data.data.isPublic);
-          setOvertime(response.data.overtime);
-          // 비회원 설문조사 모드 (비밀번호 입력창) 활성화
-          setIsNonUser(true);
-        } else if (response.status === 200 && response.data.data.user_id) {
-          setVoteInfo(response.data.data);
-          setVoteTitle(response.data.data.title);
-          setToggleOngoing(response.data.data.undergoing);
-          setTogglePublic(response.data.data.isPublic);
-          // sumCount가 있는 설문이면 가져오기
-          if (response.data.sumCount) setVoteSumCount(response.data.sumCount);
-        } else {
-          setSometingWrong(true);
+        if (response.status === 200) {
+          let getVoteBody: ResultVoteInfo;
+          if (response.data.user_data) {
+            getVoteBody = {
+              _id: response.data.vote_data._id,
+              user_id: response.data.user_data._user_id,
+              image: response.data.user_data.image,
+              url: response.data.vote_data.url,
+              title: response.data.vote_data.title,
+              format: response.data.vote_data.format,
+              type: response.data.vote_data.type,
+              items:
+                response.data.vote_data.items ||
+                response.data.vote_data.response,
+              multiple: response.data.vote_data.multiple,
+              manytimes: response.data.vote_data.manytimes,
+              undergoing: response.data.vote_data.undergoing,
+              isPublic: response.data.vote_data.isPublic,
+              created_at: response.data.vote_data.created_at,
+              sumCount: response.data.vote_data.sumCount || 0,
+            };
+          } else {
+            getVoteBody = {
+              _id: response.data.vote_data._id,
+              url: response.data.vote_data.url,
+              title: response.data.vote_data.title,
+              format: response.data.vote_data.format,
+              type: response.data.vote_data.type,
+              items:
+                response.data.vote_data.items ||
+                response.data.vote_data.response,
+              multiple: response.data.vote_data.multiple,
+              manytimes: response.data.vote_data.manytimes,
+              undergoing: response.data.vote_data.undergoing,
+              created_at: response.data.vote_data.created_at,
+              overtime: response.data.overtime,
+              sumCount: response.data.vote_data.sumCount || 0,
+              password: response.data.vote_data.password,
+            };
+          }
+          dispatch(patchGetVote(getVoteBody));
+          setVoteTitle(response.data.vote_data.title);
+          if (response.data.user_data) {
+            // 회원일 때 토글버튼 두개를 db에 있는 상태로 초기화합니다.
+            setToggleOngoing(response.data.vote_data.undergoing);
+            setTogglePublic(response.data.vote_data.isPublic);
+          } else {
+            // 비회원일 때 비회원모드를 활성화합니다.
+            setIsNonUser(true);
+            setOvertime(response.data.overtime);
+          }
         }
       } catch (e) {
         setSometingWrong(true);
       }
     };
-
     voteResult();
   }, []);
 
@@ -138,7 +137,11 @@ function V() {
         setTogglePublic(response.data.isPublic);
       }
     } catch (e) {
-      console.log(e);
+      return (
+        <div className="error">
+          네트워크 오류 발생. 잠시 후 다시 시도해주세요.
+        </div>
+      );
     }
   };
 
@@ -161,7 +164,11 @@ function V() {
           setToggleOngoing(response.data.isActive);
         }
       } catch (e) {
-        console.log(e);
+        return (
+          <div className="error">
+            네트워크 오류 발생. 잠시 후 다시 시도해주세요.
+          </div>
+        );
       }
     } else {
       try {
@@ -182,12 +189,15 @@ function V() {
           setToggleOngoing(response.data.isActive);
         }
       } catch (e) {
-        console.log(e);
+        return (
+          <div className="error">
+            네트워크 오류 발생. 잠시 후 다시 시도해주세요.
+          </div>
+        );
       }
     }
   };
 
-  // Alert Options
   const options: AlertOptions = {
     position: positions.TOP_CENTER,
     timeout: 3000,
@@ -270,7 +280,7 @@ function V() {
                     실시간 응답 보기
                   </div>
                 </div>
-                {voteInfo.password ? (
+                {votePass ? (
                   <div className="options">
                     <div>
                       <Counter overtime={overtime} />
@@ -332,6 +342,7 @@ function V() {
 }
 
 function Howto() {
+  const voteInfo = useSelector((state: RootState) => state.getVote);
   const [imgUrl, setImgUrl] = useState("");
   const { code } = useParams();
   const alert = useAlert();
@@ -396,20 +407,40 @@ function Howto() {
     });
   }
 
+  // 카카오톡 공유하기
+  const sendKakaoMessage = () => {
+    window.Kakao.Link.sendDefault({
+      objectType: "feed",
+      content: {
+        title: `지금, [${voteInfo.title}](이)라는 주제가 당신의 의견을 기다리고 있어요.`,
+        description:
+          "실시간 설문 플랫폼 Vting에서 클릭 한 번으로 당신의 생각을 전해보세요!",
+        imageUrl:
+          "	https://vtingimage.s3.ap-northeast-2.amazonaws.com/uploads/1649393809747_vt_logo_2.png",
+        link: {
+          webUrl: `https://vote.v-ting.net/${code}`,
+          mobileWebUrl: `https://vote.v-ting.net/${code}`,
+        },
+      },
+    });
+  };
+
   return (
     <>
       <div className="voteResultChild voteResultShort">
         <div className="voteResultChildTitle">Short URL</div>
         <div className="voteResultChildContent">
-          vote.v-ting.net/
-          <br />
-          {code}
+          <div data-aos="flip-left">
+            vote.v-ting.net/
+            <br />
+            {code}
+          </div>
         </div>
         <div className="voteResultChildShare">
           <div className="copy" onClick={() => shortUrlClip()}>
             <BiCopy />
           </div>
-          <div className="sns">
+          <div className="sns" onClick={() => sendKakaoMessage()}>
             <BiShareAlt />
           </div>
         </div>
@@ -421,12 +452,14 @@ function Howto() {
       <div className="hrVer"></div>
       <div className="voteResultChild voteResultCode">
         <div className="voteResultChildTitle">Vting Code</div>
-        <div className="voteResultChildContent">{code}</div>
+        <div className="voteResultChildContent">
+          <div data-aos="flip-left">{code}</div>
+        </div>
         <div className="voteResultChildShare">
           <div className="copy" onClick={() => codeClip()}>
             <BiCopy />
           </div>
-          <div className="sns">
+          <div className="sns" onClick={() => sendKakaoMessage()}>
             <BiShareAlt />
           </div>
         </div>
@@ -439,13 +472,18 @@ function Howto() {
       <div className="voteResultChild voteResultQr">
         <div className="voteResultChildTitle">QR Code</div>
         <div className="voteResultChildContent voteResultChildQr">
-          <img src={imgUrl} alt="qr" onClick={() => zoomQr()} />
+          <img
+            src={imgUrl}
+            alt="qr"
+            onClick={() => zoomQr()}
+            data-aos="flip-left"
+          />
         </div>
         <div className="voteResultChildShare">
           <div className="copy" onClick={() => quBlobClip()}>
             <BiCopy />
           </div>
-          <div className="sns">
+          <div className="sns" onClick={() => sendKakaoMessage()}>
             <BiShareAlt />
           </div>
         </div>
@@ -458,7 +496,9 @@ function Howto() {
   );
 }
 
-function PasswordCheck({ setIsNonUser, votePass }: Props) {
+function PasswordCheck({ setIsNonUser }: Props) {
+  const voteInfo = useSelector((state: RootState) => state.getVote);
+  const votePass = voteInfo.password;
   const [password, setPassword] = useState("");
   const alert = useAlert();
 
