@@ -7,6 +7,7 @@ import Test from "../Modal/Test";
 
 axios.defaults.withCredentials = true;
 
+
 function Home() {
   return (
     <div className="homeCon">
@@ -16,6 +17,7 @@ function Home() {
       <div className="services">
         <Info />
       </div>
+
     </div>
   );
 }

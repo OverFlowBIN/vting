@@ -4,7 +4,9 @@ import { Outlet } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./MyPage.scss";
 
+
 const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 function MyPage() {
   const navigate = useNavigate();

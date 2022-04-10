@@ -44,7 +44,9 @@ const makeRandomWidth = (num: number, sum: number): React.CSSProperties => {
 
 function VoterRealtime() {
   const voteData = useSelector((state: RootState) => state.getVote);
+
   const serverURL = process.env.REACT_APP_SERVER_URL;
+
   const { code } = useParams();
   const items = voteData.items;
   const format = voteData.format;

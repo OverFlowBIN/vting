@@ -31,7 +31,9 @@ export default function VoteSlider({ content }: Props) {
     },
   ]);
 
+
   const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
   useEffect(() => {
     async function getAllVotes() {
@@ -59,6 +61,7 @@ export default function VoteSlider({ content }: Props) {
 
   return (
     <div className="hotVotes">
+
       {isLoading ? (
         <Loading />
       ) : errMode ? (
@@ -85,6 +88,7 @@ export default function VoteSlider({ content }: Props) {
                     {el.voterCount}명 참여 중
                   </div>
                 </a>
+
               </div>
             ))}
           </Slider>

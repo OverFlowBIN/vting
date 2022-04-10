@@ -6,7 +6,9 @@ import { useNavigate } from "react-router-dom";
 import "./Delete.scss";
 import vtCry from "../../assets/vt_cry.png";
 
+
 const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 function Delete() {
   const dispatch = useDispatch();

@@ -8,7 +8,9 @@ import axios from "axios";
 import ProgressBar from "../Info/ProgressBar";
 import { BiMenu, BiX } from "react-icons/bi";
 
+
 const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 function Navbar() {
   const dispatch = useDispatch();
@@ -274,7 +276,9 @@ function VotingBanner() {
           ></input>
         </div>
         <a
+
           href={`${process.env.REACT_APP_CLIENT_URL}/${vtingCode}`}
+
           target="_blank"
           rel="noopener noreferrer"
         >

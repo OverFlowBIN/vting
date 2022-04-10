@@ -1,6 +1,8 @@
 import React from "react";
 import { GoogleLogin } from "react-google-login";
+
 import FacebookLogin from "@greatsumini/react-facebook-login";
+
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setIsLogin, setUserInfo } from "../store/index";
@@ -10,7 +12,9 @@ import axios from "axios";
 const clientId =
   "1090240452697-ld3bhcs5kd2v5m8c9iijrjtqckimgfbi.apps.googleusercontent.com";
 
+
 const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 interface PropsType {
   inOrUp: string;
@@ -131,6 +135,7 @@ const LoginGoogle = ({ inOrUp }: PropsType) => {
     </div>
   );
 };
+
 
 const LoginFacebook = ({ inOrUp }: PropsType) => {
   const dispatch = useDispatch();
@@ -333,3 +338,4 @@ const LoginFacebook = ({ inOrUp }: PropsType) => {
 export { LoginGoogle, LoginFacebook };
 
 // appId="1124695878322136"
+
