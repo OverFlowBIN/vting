@@ -6,7 +6,9 @@ import { RootState } from "../store/index";
 import "./Dashboard.scss";
 import vtCry from "../assets/vt_cry.png";
 
+
 const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 function Dashboard() {
   const navigate = useNavigate();

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const __1 = require("..");
+
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -33,6 +34,7 @@ exports.UserController = {
                         return res.status(200).json({
                             message: "It doesn't match",
                         });
+
                     }
                     else {
                         return res.status(200).json({

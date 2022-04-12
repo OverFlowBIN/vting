@@ -6,7 +6,9 @@ import { RootState, setIsLogin, setUserInfo } from "../store/index";
 import "./SignIn.scss";
 
 import Logo from "../assets/v-ting_logo_circle.png";
+
 import { LoginGoogle, LoginFacebook } from "./OauthLogin";
+
 
 interface User {
   email: string;
@@ -23,7 +25,9 @@ interface InOrUp {
   signIn: boolean;
 }
 
+
 const serverURL: string = process.env.REACT_APP_SERVER_URL as string;
+
 
 function SignIn() {
   const dispatch = useDispatch();
@@ -462,9 +466,11 @@ function SignIn() {
                   <div>
                     <LoginGoogle inOrUp="out" />
                   </div>
+
                   <div>
                     <LoginFacebook inOrUp="out" />
                   </div>
+
                 </div>
                 <button className="back_login" onClick={() => setSignIn()}>
                   로그인화면으로 돌아가기
@@ -518,6 +524,7 @@ function SignIn() {
               <div className="SignUpOkModal_desc">
                 <h3>{userInfo.nickname}님, 회원가입이 완료되었습니다.</h3>
               </div>
+
               <div className="SignUpOkModal_btnWrap">
                 <button
                   className="SignUpOkModal_ok"
@@ -531,6 +538,7 @@ function SignIn() {
                 >
                   취소
                 </button>
+
               </div>
             </div>
           </div>

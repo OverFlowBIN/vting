@@ -51,7 +51,9 @@ function Vresult() {
   const format = voteData.format;
   const type = voteData.type;
   const dispatch = useDispatch();
+
   const serverURL = process.env.REACT_APP_SERVER_URL;
+
   const [words, setWords] = useState([{ text: "", value: 10 }]);
 
   // 처음 접속하면 응답 새로 받아오기

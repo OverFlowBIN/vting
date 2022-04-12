@@ -49,7 +49,9 @@ function V() {
   const votePass = voteInfo.password;
   const dispatch = useDispatch();
 
+
   const serverURL = process.env.REACT_APP_SERVER_URL;
+
   const accessToken = localStorage.getItem("accessToken");
 
   useEffect(() => {

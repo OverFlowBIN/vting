@@ -21,7 +21,9 @@ function VoteButton({ everytingIsOk, setTitleShake, setItemShake }: Props) {
   const alert = useAlert();
   const dispatch = useDispatch();
 
+
   const serverURL = process.env.REACT_APP_SERVER_URL;
+
 
   const sendNewVote = async () => {
     if (!everytingIsOk) {

@@ -18,6 +18,7 @@ interface Options {
   setAnswerMode: Dispatch<SetStateAction<boolean>>;
 }
 
+
 interface Item {
   idx: number;
   content: string;
@@ -65,6 +66,7 @@ function verrifyCookie(code: string) {
     return true;
   } else return false;
 }
+
 
 function VoterAnswer({ setAnswerMode }: Props) {
   const voteData = useSelector((state: RootState) => state.getVote);
